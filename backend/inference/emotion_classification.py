@@ -1,0 +1,41 @@
+import torch
+from transformers import AutoTokenizer, AutoModelForSequenceClassification,AutoConfig
+import numpy as np
+from operator import itemgetter
+from pathlib import Path
+
+class EmotionClassification:
+
+    def __init__(self, folder, device):
+        model_path = folder.joinpath(Path('emotion-english-distilroberta-base'))
+        self.emo_tokenizer = AutoTokenizer.from_pretrained(model_path)
+        self.emo_model = AutoModelForSequenceClassification.from_pretrained(model_path).to(device)
+        self.emo_config = AutoConfig.from_pretrained(model_path)
+        self.emo_labels = np.array(list(self.emo_config.id2label.values()))
+
+
+    def recognize_emotions(self,text):
+        encoded_input = self.emo_tokenizer(text, return_tensors='pt')
+
+        with torch.no_grad():
+            output = self.emo_model(**encoded_input)
+            scores = output.logits
+            scores = torch.softmax(scores, dim=1).numpy()[0]
+
+            label_names = np.array(list(self.emo_config.id2label.values()))
+
+            # wybranie emocji, dla których wynik jest większy od danego progu
+            relevance_mask = scores > 0.001
+
+            labels = label_names[relevance_mask]
+            # konwersja z numpy array na listę, do poźniejszej JSONizacji
+            best = scores[relevance_mask].tolist()
+
+            # złączenie i posortowanie wyników
+            zipped = list(zip(labels, best))
+            sorted_results = sorted(zipped, reverse=True, key=itemgetter(1))
+
+            return sorted_results
+
+
+

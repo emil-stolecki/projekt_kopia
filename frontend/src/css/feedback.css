@@ -1,0 +1,130 @@
+
+.feedback-left{
+    float: left;
+    width: 52vw;
+    margin-top:1vh;
+    margin-left: 1vw;
+    background-color: #4a4f50;
+    border-radius: 5px;
+    min-height: 45vh;
+  
+  }
+  
+  .feedback-right{
+    margin-top:1vh;
+    margin-right: 1vw;
+    float: right;
+    
+  }
+  
+  .opinion{
+    min-height: 40vh;
+    text-align: left;
+    
+  }
+  
+  
+  .opinion textarea{
+   resize: vertical;
+   width: 100%;
+   height: 30vh;
+   margin-top: 5px;
+   background-color: rgb(249, 226, 96);
+   color: rgb(113, 49, 3);
+   font-size: 16px;
+  
+  }
+  
+  
+  
+  .correction{
+   width: 44vw;
+   text-align: left;
+  }
+  
+  .correction p{
+    font-weight:200;
+    font-size: 18px;
+    color: azure;
+    text-align: center;
+  }
+  
+  .feedback-right b{
+    color: azure;
+    font-weight: 500;
+    font-size: 20px;
+  }
+  
+  .correction table{
+    width: 100%;
+  }
+  
+  .reference-list-element{
+    margin: 0.5vh 1vw;
+    
+  }
+  
+  .label-correction{
+    background-color: rgb(205, 205, 205);
+  }
+  
+  
+  
+  .reference-list-element p{
+    background-color: gold;
+    height: 40px;
+    width: 43vw;
+    overflow:hidden;
+    overflow-wrap: break-word;
+    text-align: left;
+    float: left;
+    margin: 0px;
+    margin-right: 2px;
+    border: goldenrod 2px solid;
+    border-radius: 5px;
+  }
+  
+  .reference-list-element button{
+    float: left;
+    background-color: gold;
+    height: 40px;
+    overflow:hidden;
+    overflow-wrap: break-word;
+    border: goldenrod 2px solid;
+    border-radius: 3px;
+  }
+  
+  .reference-list-element button:hover{
+    background-color: rgb(252, 162, 60);
+  }
+  
+  .text-list{
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    height: 45vh;
+    border: 1px solid rgb(99, 99, 99);
+    background-color: darkgrey;
+    border-radius: 3px; 
+  }
+  
+  .text-list option{
+    border-bottom: 1px solid rgb(118, 118, 118);
+  }
+  .reference ul{
+    background-color: rgb(255, 239, 147);
+    margin-top: 10px;
+    height: 45vh;
+    overflow-y: scroll;
+    border: #74370c 2px solid;
+    border-radius: 5px;
+  }
+  
+  .feedback-right button{
+    width: 50%;
+  }
+
+.feedback-right p{
+  color: azure;
+}
+  

@@ -1,0 +1,103 @@
+
+.history-element-tile{
+    width: 90vw;
+    height: 132px;
+    margin-left: 5vw;
+    padding: 2px;
+    
+  }
+  
+  .history-element-tile :hover{
+    background-color:rgb(255, 239, 147);
+  }
+  
+  .history-element-content{
+    background-color:rgb(229, 222, 180);
+    border: black 0.3vw solid;
+    border-radius: 5px;
+    text-align: left;
+    float: left;
+  }
+  
+  .history-element-tile-checkbox{
+    width: 10vw;
+    float: left;
+    text-align: center;
+    background-color:rgb(229, 222, 180);
+    height: 126px;
+    border-radius: 5px;
+    border: black 0.3vw solid;
+  }
+  
+  .history-element-tile-checkbox input{
+   margin-top: 55px;
+  }
+  
+  .history-element-tile-text{
+   float: left;
+   width: 62vw;
+   height: 120px;
+   overflow:hidden;
+   overflow-wrap: break-word;
+   padding: 2px;
+   margin: 1px;
+  }
+  
+  .history-element-tile-border{
+    width: 0.3vw;
+    height:120px;
+    background-color: black;
+    float: left;
+    border-radius: 50%;
+  }
+  
+  .history-element-tile-results{
+    float: right;
+    width:15vw;
+    height: 120px;
+    margin-left: 0.7vw;
+    overflow:hidden;
+  }
+  
+  .menu{
+    background-color: #1c1f25;
+    padding-top:10px;
+    padding-bottom: 5px;
+    min-height: 40px;
+  }
+  
+  .menu button{
+    background-color: rgb(227, 213, 132);
+    height: 30px;
+    width: 150px;
+    margin: 2px 10px;
+    float: left;
+  
+  }
+  
+  .menu button:hover{
+    background-color: rgb(244, 232, 165);
+  }
+  
+  .menu p {
+    color: white;
+    
+    margin-right: 2vw;
+    margin-bottom: 0px;
+  }
+
+  
+.text{
+    float: left;
+    background-color: rgb(249, 226, 96);
+    margin-top: 3vh;
+    margin-left: 3vw;
+    width: 55vw;
+    height: 90vh;
+    text-align: left;
+    padding: 0.5vw;
+    overflow:hidden;
+    overflow-wrap: break-word;
+  }
+  
+  

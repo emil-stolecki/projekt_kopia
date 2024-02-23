@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$/.." vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/llm_models/51-languages-classifier" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/llm_models/emotion-english-distilroberta-base" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/llm_models/one-for-all-toxicity-v3" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/llm_models/twitter-xlm-roberta-base-sentiment-finetunned" vcs="Git" />
+  </component>
+</project>

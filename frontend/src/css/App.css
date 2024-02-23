@@ -1,0 +1,86 @@
+.App {
+  text-align: center;
+}
+
+.clearfix{
+  clear: both;
+}
+
+ul{
+  margin: 0;
+  padding: 0;
+}
+
+li{
+  list-style: none;
+}
+
+.content{
+  background-color: #35393a;
+  min-height: calc(100vh - 48px);
+}
+
+.topbar{
+  background-color: #1c1f25;
+  min-height:48px;
+}
+
+.topbar button{
+  float: left;
+  margin: 5px;
+  background-color:rgb(253, 238, 150);
+  height: 35px;
+  width: 80px;
+}
+
+.topbar button:hover{
+  background-color: rgb(255, 250, 224);
+}
+
+.send-button{
+  width: 20vw;
+  height: 10vh;
+  border-radius: 5px;
+  background-color: gray ;
+  border-color: darkgray;
+  color: whitesmoke;
+}
+
+.send-button:hover{
+  background-color: whitesmoke;
+  border-color: black;
+  color: black;
+}
+
+
+.result{
+  background-color: darkgrey;
+  width:30vw;
+  min-height: 90vh;
+  margin: 3vh 5vw;
+  text-align: left;
+  border: black 0.3vw solid;
+  border-radius: 5px;
+}
+
+.results-container{
+  float: right;
+  width:38vw;
+}
+
+.result p {
+  margin: 5px;
+}
+
+.bar{
+  background-color: #6e6e6e;
+  height: 4px;
+  width: 15vw;
+  border-radius: 10px;
+  margin-left: 5px;
+}
+
+
+
+
+
