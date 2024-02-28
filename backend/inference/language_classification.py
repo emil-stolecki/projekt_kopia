@@ -22,6 +22,7 @@ class LanguageClassification:
     def recognize_language(self,text):
         #tokenizacja tekstu
         encoded_input = self.lang_tokenizer(text, return_tensors='pt')
+        #print(len(encoded_input[0]))
         #przeprowadzenie klasyfikacji
         #obliczanie gradientów nie jest konieczne do interferencji, torch.no_grad może zaoszczędzić czas
         with torch.no_grad():

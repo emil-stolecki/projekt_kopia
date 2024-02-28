@@ -11,6 +11,7 @@ from inference.emotion_classification import EmotionClassification
 from database import Database
 import os
 from dotenv import load_dotenv
+import torch
 
 app = FastAPI()
 app.add_middleware(
@@ -20,9 +21,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-device = "cpu"
-folder = Path('llm_models')
+#device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device ='cpu'
+folder = Path('llm-models')
 
 lang_cl = LanguageClassification(folder, device)
 tox_cl = ToxicityClassification(folder, device)

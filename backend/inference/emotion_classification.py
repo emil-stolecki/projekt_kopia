@@ -14,9 +14,10 @@ class EmotionClassification:
         self.emo_labels = np.array(list(self.emo_config.id2label.values()))
 
 
+
     def recognize_emotions(self,text):
         encoded_input = self.emo_tokenizer(text, return_tensors='pt')
-
+        #print(len(encoded_input[0]))
         with torch.no_grad():
             output = self.emo_model(**encoded_input)
             scores = output.logits

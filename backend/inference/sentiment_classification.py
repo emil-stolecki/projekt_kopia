@@ -17,6 +17,7 @@ class SentimentClassification:
     def analize_sentiment(self,text):
         # tokenizacja tekstu
         encoded_input = self.sen_tokenizer(text, return_tensors='pt')
+        #print(len(encoded_input[0]))
 
         with torch.no_grad():
             # przeprowadzenie klasyfikacji
