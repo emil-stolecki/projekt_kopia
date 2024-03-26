@@ -3,7 +3,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification,AutoC
 import numpy as np
 from operator import itemgetter
 from pathlib import Path
-
+from extraFunctions import pick_params,split_text
 class EmotionClassification:
 
     def __init__(self, folder, device):
@@ -12,14 +12,31 @@ class EmotionClassification:
         self.emo_model = AutoModelForSequenceClassification.from_pretrained(model_path).to(device)
         self.emo_config = AutoConfig.from_pretrained(model_path)
         self.emo_labels = np.array(list(self.emo_config.id2label.values()))
-
+        self.device = device
 
 
     def recognize_emotions(self,text):
-        encoded_input = self.emo_tokenizer(text, return_tensors='pt')
+        encoded_input = self.emo_tokenizer.encode_plus(text, add_special_tokens=False, truncation=False,
+                                                       return_tensors="pt")
+        input_ids = []
+        attention_mask = []
+        if len(encoded_input[0]) > 510:
+            window, n, overlap, error = pick_params(len(encoded_input[0]))
+            input_ids, attention_mask = split_text(encoded_input,
+                                                   window, n, overlap,
+                                                   self.emo_tokenizer.cls_token_id, self.emo_tokenizer.sep_token_id,
+                                                   self.emo_tokenizer.pad_token_id)
+        else:
+            input_ids = torch.stack(
+                [torch.cat([torch.Tensor([self.emo_tokenizer.cls_token_id]), encoded_input.input_ids[0],
+                            torch.Tensor([self.emo_tokenizer.sep_token_id])]).to(torch.long).to(self.device)])
+            attention_mask = torch.stack(
+                [torch.cat([torch.Tensor([1]), encoded_input.attention_mask[0], torch.Tensor([1])]).to(torch.long).to(
+                    self.device)])
+
         #print(len(encoded_input[0]))
         with torch.no_grad():
-            output = self.emo_model(**encoded_input)
+            output = self.emo_model(input_ids, attention_mask=attention_mask)
             scores = output.logits
             scores = torch.softmax(scores, dim=1).numpy()[0]
 

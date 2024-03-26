@@ -116,7 +116,6 @@ def pick_params(length, max_itter=20, size=4):
 
   error = (data[:, 1] * data[:, 0] - (data[:, 1] - 1) * data[:, 2]) - length #policzenie błędu
   data[:, 3] = error
-  print(data)
   data = data[data[:,3]>0] #odrzucenie tych z ujemnym błędem
   data[:,0] =  data[:,0]*-1 #błąd, n i zakładka mają być jak najmniejsze, a okno największę, więc tymczasowo będzie zmienione na ujemne do sortowania
   structured  =np.core.records.fromarrays(data.transpose(), names=['window','n','stride','error'])
@@ -142,7 +141,6 @@ def split_text(encoded_input,window,n,overlap,bos,eos,pad):
     for i in range(n):
         part = encoded_input.input_ids[0][i * (offset - 1):i * offset + window]
         mask_part = encoded_input.attention_mask[0][i * (offset - 1):i * offset + window]
-        print(len(part))
         part = torch.cat([torch.Tensor([bos]), part, torch.Tensor([eos]), torch.Tensor([pad] * (510 - len(part)))]).to(torch.long)
         mask_part = torch.cat([torch.Tensor([1]), mask_part, torch.Tensor([1]),  torch.Tensor([0] * (510 - len(mask_part)))]).to(torch.long)
 

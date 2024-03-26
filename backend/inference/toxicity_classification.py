@@ -16,20 +16,14 @@ class ToxicityClassification:
 
     def is_toxic(self,text):
         # tokenizacja tekstu
-        print('hello')
         encoded_input = self.tox_tokenizer.encode_plus(text, add_special_tokens=False, truncation=False, return_tensors="pt")
-        #print(len(encoded_input[0]))
         input_ids = []
         attention_mask = []
         if len(encoded_input[0])>510:
-            print('hello1')
             window, n, overlap, error = pick_params(len(encoded_input[0]))
-            print(window, n, overlap, error )
             input_ids, attention_mask = split_text(encoded_input,
                                                   window, n, overlap,
                                                   self.tox_tokenizer.cls_token_id,self.tox_tokenizer.sep_token_id,self.tox_tokenizer.pad_token_id)
-
-            print('here')
         else:
             input_ids = torch.stack(
                 [torch.cat([torch.Tensor([self.tox_tokenizer.cls_token_id]), encoded_input.input_ids[0],

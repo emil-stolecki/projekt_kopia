@@ -22,7 +22,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 #device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-device ='cpu'
+device ="cpu"
+print(torch.cuda.is_available())
 folder = Path('llm-models')
 
 lang_cl = LanguageClassification(folder, device)

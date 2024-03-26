@@ -8,14 +8,16 @@ import LabelCorrection from '../components/LabelCorrection';
 import labels from '../labels.json' ;
 
 export default function Feedback(){
+    
     const location = useLocation();
     //ewentualne zaznaczone wcześniej zapisy
     const listOfkeys = new URLSearchParams(location.search).get('keys');
-
     //wszystkie elementy z localstorage
     const items = 
         Object.fromEntries(
-        Object.entries({...localStorage}).map(([key, value]) => [key, JSON.parse(value)])
+        Object.entries({...localStorage})
+        .filter(([k,v])=>/\d{1,2}-\d{1,2}-[A-Za-z]/g.test(k))//tylko elementy reprezentujące analizę tekstu
+        .map(([key, value]) => [key, JSON.parse(value)])
     );
 
     //niedodane do opinni zapisy

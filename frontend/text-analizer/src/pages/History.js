@@ -10,7 +10,8 @@ export default function History(){
     const navigate = useNavigate();
     //zapisy poprzednich analiz z localstorage
     const [items,updateItems] = useState(
-        Object.entries({ ...localStorage }));
+        Object.entries({...localStorage})
+        .filter(([k,v])=>/\d{1,2}-\d{1,2}-[A-Za-z]/g.test(k)));
     //czy została wywołana funkcja zaznaczająca wszystkie pozycje? albo odznaczająca?
     const [selectedAll,setselectedAll] = useState(false)
     //lista stanów zaznaczenia wszystkich elementów
@@ -23,9 +24,8 @@ export default function History(){
           
           allStrings += (items[i][0]+items[i][1]);
         }
-        //1 bajt = 8 bitów
-        //1 znak = 16 bitów = 2 bajty 
-        //1KB = 1024 bajty   
+        //1 znak  = 2 bajty 
+        //1KB = 1024 bajty, 1MB = 1024 KB
         return ((allStrings.length * 2) / 1024 / 1024);
     };
 
@@ -49,7 +49,7 @@ export default function History(){
             setselectedAll(false)
         }
         else {
-            setSelected(Object.keys({ ...localStorage }))
+            setSelected(Object.keys({ ...localStorage }).filter((k)=>/\d{1,2}-\d{1,2}-[A-Za-z]/g.test(k)))
             setselectedAll(true)
         }
     }
@@ -57,7 +57,7 @@ export default function History(){
     //usuwa zaznaczone elementy
     function deleteSelected(){
         selected.forEach((key) => localStorage.removeItem(key))
-        updateItems(Object.entries({ ...localStorage }))
+        updateItems(Object.entries({ ...localStorage }).filter(([k,v])=>/\d{1,2}-\d{1,2}-[A-Za-z]/g.test(k)))
         setUsedSpace(calculateUsedSpace)
     }
 
