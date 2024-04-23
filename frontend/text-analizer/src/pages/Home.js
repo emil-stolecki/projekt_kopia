@@ -1,12 +1,14 @@
 import axios from 'axios';
-import React, { useState, useEffect } from 'react';
+import React, { useState,useContext} from 'react';
 import ShortUniqueId from 'short-unique-id';
 import '../css/home.css';
+import { Server } from '../index';
 import Topbar from '../components/Topbar';
 import Results from '../components/Results';
 import Tutorial from '../components/Tutorial';
 
 export default function Home(){
+  const server = useContext(Server)
   //wpisany tekst
   const [input, setInput]=useState('')
   //otrzymana odpowiedź
@@ -17,7 +19,7 @@ export default function Home(){
   const storageKeyId = new ShortUniqueId({ length: 2 });
   //tutorial
   const [shouldTutorialRun,setShoulTutorialdRun] = useState(localStorage.getItem('tutorial')!=="ok")//ok znaczy, że tutorial został ukończony lub pominięty
-
+  //const [shouldTutorialRun,setShoulTutorialdRun] = useState(true)
 function updateTextArea(e){
   setInput(e.target.value)
 }
@@ -29,9 +31,8 @@ async function send(e){
     if(input.length>0 && input.length<10000){
       document.body.style.cursor = 'wait'     
       try {
-        const response = await axios.post('http://localhost:8000/inference',{text:input});
+        const response = await axios.post(server+'inference',{text:input});
         setData(response.data);
-        console.log(response.data)
         //wpis do local storage
         const date = new Date()
         const random = storageKeyId.rnd()
@@ -47,7 +48,7 @@ async function send(e){
       }
       document.body.style.cursor = 'default'
     }
-    else if(input.length==0){
+    else if(input.length===0){
       setError('pole jest puste')
     }
     else{
@@ -58,7 +59,7 @@ async function send(e){
 
   return (
     <div className="App">    
-      <Topbar/>
+      <Topbar disabled ={shouldTutorialRun}/>
       <div className='content'>
         <div className='input'>
         <textarea  value={input}onChange={updateTextArea} disabled={shouldTutorialRun} ></textarea>

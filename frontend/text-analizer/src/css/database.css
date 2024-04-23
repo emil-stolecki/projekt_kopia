@@ -1,0 +1,70 @@
+.search-bar{
+    min-height: 20vh;
+    background-color: #1c1f25;                 ;
+}
+
+
+
+.filter-option{
+    float: left;
+    color: azure;
+    margin-left: 2vw;
+    margin-top: 2vh;
+    min-width: 10vw;
+    
+}
+.filter-option b{
+    font-weight: 800;
+}
+.filter-inputs{
+    background-color: gray;
+    color: black;
+    min-height: 10vh;
+    margin-top: 2vh;
+}
+
+.filter-inputs span{
+    float: left;
+    font-weight: 300;
+    margin-top: 1vh;
+
+}
+.filter-inputs input{
+    float: right;
+    margin-top: 1vh;
+
+}
+.search-button{
+    margin-top: 2vh;
+    margin-left: 3vw;
+    width: 5vw;
+}
+
+.record-tile{
+    height: 32px;
+    background-color: rgb(172, 172, 172);
+    margin-bottom: 1vh;
+    margin-left: 1vw;
+    margin-right: 1vw;
+}
+
+.page-button{
+    margin-left: 3vw;
+    width: 10vw;
+
+}
+
+.record-tile p{
+ margin-top: 0;
+}
+
+.record-tile-field {
+    float: left;
+    margin-top: 0.5vh;
+    margin-left: 2vw;
+
+}
+.show-count{
+    color: azure;
+    text-align: center;
+}

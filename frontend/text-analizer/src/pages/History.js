@@ -4,9 +4,10 @@ import '../css/history.css'
 import { useNavigate } from 'react-router-dom';
 import HistoryElement from '../components/HistoryElement';
 import Topbar from '../components/Topbar';
+import Tutorial from '../components/Tutorial';
 
 export default function History(){
-
+    
     const navigate = useNavigate();
     //zapisy poprzednich analiz z localstorage
     const [items,updateItems] = useState(
@@ -16,7 +17,7 @@ export default function History(){
     const [selectedAll,setselectedAll] = useState(false)
     //lista stanów zaznaczenia wszystkich elementów
     const [selected,setSelected] = useState([])
-
+    const [shouldTutorialRun,setShoulTutorialdRun] = useState(localStorage.getItem('tutorial')!=="ok")//ok znaczy, że tutorial został ukończony lub pominięty
     //funkcja obliczająca zajęte miejsce w local storage na podstawie ilości znaków
     const calculateUsedSpace = () => {
         let allStrings = '';
@@ -65,24 +66,31 @@ export default function History(){
     function sendFeedback(){
         navigate(`/feedback?keys=${encodeURIComponent(selected)}`)
     }
+    function onTutorialFinish(){
+        setShoulTutorialdRun(false)
+        updateItems(Object.entries({...localStorage})
+        .filter(([k,v])=>/\d{1,2}-\d{1,2}-[A-Za-z]/g.test(k)))
 
+    }
     return(
         <div className='App'>
-            <Topbar/>
+            <Topbar disabled={shouldTutorialRun}/>
             <div className='menu'>
-                <button className="menu-button" onClick={selectDeselectAll}>{selectedAll?'Odznacz wszystko':'Zaznacz wszystko'}</button>
-                <button className="menu-button" onClick={deleteSelected}>Usuń zaznaczone</button>
-                <button className="menu-button" onClick={sendFeedback}>Prześlij opinię</button>
+                <button className="menu-button" onClick={selectDeselectAll} disabled={shouldTutorialRun} >{selectedAll?'Odznacz wszystko':'Zaznacz wszystko'} </button>
+                <button className="menu-button" onClick={deleteSelected} disabled={shouldTutorialRun} >Usuń zaznaczone</button>
+                <button className="menu-button" onClick={sendFeedback} disabled={shouldTutorialRun} >Prześlij opinię</button>
                 <p>{'zajęte miejsce: ' + usedSpace.toFixed(3) + ' MB'}</p>
                 <div className='clearfix'></div>
             </div>
             <div className='content'>
                 <ul>
                     {items.map((x)=><HistoryElement key={x[0]} record_key={x[0]} value={x[1]} 
-                    selected={selected.includes(x[0])} handleChange={handleChange}/>)}
+                    selected={selected.includes(x[0])} handleChange={handleChange} disabled={shouldTutorialRun}/>)}
                 </ul>
                 
             </div>
+            {shouldTutorialRun && <Tutorial shouldRun={shouldTutorialRun} onFinish={onTutorialFinish} 
+         other={{updateitems:updateItems}}/>}
         </div>
     )
 }

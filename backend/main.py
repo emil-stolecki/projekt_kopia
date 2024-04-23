@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import FastAPI
 from pathlib import Path
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,6 +14,8 @@ from database import Database
 import os
 from dotenv import load_dotenv
 import torch
+import json
+from bson import json_util
 
 app = FastAPI()
 app.add_middleware(
@@ -36,8 +40,8 @@ emo_cl = EmotionClassification(folder, device)
 load_dotenv()
 name = os.environ.get("NAME")
 password = os.environ.get("PASSWORD")
-db = Database(name, password)
-
+#db = Database(name, password)
+db = Database('user','pass')
 
 class Request(BaseModel):
     text: str
@@ -47,7 +51,12 @@ class Feedback(BaseModel):
     references: list
     opinion: str
     corrected: object
+    date: datetime
 
+class QueryParams(BaseModel):
+    params: dict
+
+#przeniść gdzieś te obiekty
 
 @app.post("/inference")
 async def inference(request: Request):
@@ -80,6 +89,20 @@ async def save_feedback(feedback: Feedback):
 
     return {"success": success, "message": message}
 
+
+@app.post("/database")
+async def get_data(params: QueryParams):
+    success = True
+    data = ""
+    count=0
+    try:
+        data,count = db.read_feedback(params.params['page'],params.params['filter'])
+
+    except Exception as e:
+        success = False
+        print(e)
+    #print(data)
+    return {"success": success, "data": json.loads(json_util.dumps(data)), "count":count}
 
 @app.on_event("shutdown")
 def shutdown_event():

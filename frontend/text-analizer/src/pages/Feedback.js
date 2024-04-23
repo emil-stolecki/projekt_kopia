@@ -1,15 +1,18 @@
 import axios from 'axios';
-import React, {useEffect,useState} from 'react';
-import { useLocation } from 'react-router-dom';
+import React, {useEffect, useState, useContext} from 'react';
+import {useLocation} from 'react-router-dom';
 import Topbar from "../components/Topbar"
 import '../css/feedback.css'
+import { Server } from '../index';
 import ReferenceListElement from '../components/ReferenceListElement';
+import Tutorial from '../components/Tutorial';
 import LabelCorrection from '../components/LabelCorrection';
 import labels from '../labels.json' ;
 
 export default function Feedback(){
     
     const location = useLocation();
+    const server = useContext(Server)
     //ewentualne zaznaczone wcześniej zapisy
     const listOfkeys = new URLSearchParams(location.search).get('keys');
     //wszystkie elementy z localstorage
@@ -33,7 +36,8 @@ export default function Feedback(){
     const [addedItems, setAddedItems] = useState(    
         listOfkeys == undefined?[]:Object.entries(items).filter(([key,val])=>listOfkeys.includes(key))
     )
-    
+    //czy korekta ma być wysłana?
+    const [isCorrected,setIsCorrected]=useState(false)
     //poprawione przez użytkownika wyniki
     const [selectedEmotions, setSelectedEmotions] = useState([])
     const [selectedlanguage, setSelectedLanguage] = useState([])
@@ -45,28 +49,35 @@ export default function Feedback(){
 
     //odpowiedź od serwera
     const [status, setStatus]=useState({})
+    //tutorial
+    const [shouldTutorialRun,setShoulTutorialdRun] = useState(localStorage.getItem('tutorial')!=="ok")//ok znaczy, że tutorial został ukończony lub pominięty
 
     //przesłanie opinii
     async function send(e){ 
         e.preventDefault()
         document.body.style.cursor = 'wait'
-        if(addedItems.length>0){
+        if(addedItems.length>0 &&(inputText.length>0 || isCorrected)){
+            const corrected = {
+                toxic: selectedToxic,
+                sentiment: selectedSentiment,
+                emotion: selectedEmotions,
+                language: selectedlanguage
+             
+
+            }
+
             const feedback = {
                 references: addedItems.map((x)=>{
                     return {text:x[1].t, results:x[1].r}}),
                 opinion:inputText,
-                corrected:{
-                   toxic: selectedToxic,
-                   sentiment: selectedSentiment,
-                   emotion: selectedEmotions,
-                   language: selectedlanguage
-                }
+                corrected:isCorrected?corrected:{},
+                date: new Date()
             }
 
             try {
-                const response = await axios.post('http://localhost:8000/save-feedback',feedback);
+                const response = await axios.post(server+'save-feedback',feedback);
                 setStatus(response.data); 
-                
+                //to zmienić tak, żeby tylko dla jef\dnogo się zmieniałĸ staus
                 addedItems.forEach((item)=>{
                     item[1].f = 1
                     localStorage.setItem(item[0],JSON.stringify(item[1]))
@@ -78,7 +89,7 @@ export default function Feedback(){
             }
         }
         else{
-            setStatus({success:false, message:'nie zaznaczono tekstu'})
+            setStatus({success:false, message:'nie zaznaczono tekstu lub nie dodano opini lub korekty'})
         }
         
         document.body.style.cursor = 'default'
@@ -153,18 +164,35 @@ export default function Feedback(){
         }
     ]
 
+    function onTutorialFinish(){
+        setShoulTutorialdRun(false)
+        const items = 
+        Object.fromEntries(
+        Object.entries({...localStorage})
+        .filter(([k,v])=>/\d{1,2}-\d{1,2}-[A-Za-z]/g.test(k))//tylko elementy reprezentujące analizę tekstu
+        .map(([key, value]) => [key, JSON.parse(value)])
+        );
+
+    
+        setItemsToAdd(
+            listOfkeys == undefined?Object.entries(items):Object.entries(items).filter(([key,val])=>!listOfkeys.includes(key))
+        )
+
+        setAddedItems([])
+    
+    }
 
     return(
         <div className='App'>
-            <Topbar/>
+            <Topbar disabled={shouldTutorialRun}/>
             <div className='content'>
                 <div className='feedback-left'>
                     <div className='reference'>
-                        <select className='text-list' onChange={handlePick} size={5} >
+                        <select className='text-list' onChange={handlePick} size={5} disabled={shouldTutorialRun} >
                             {itemsToAdd.map((x)=><option key={x[0]} value={x[0]} style={textListStyle[x[1].f]}>{x[1].t.slice(0,70)+'...'}</option>)}
                         </select>
                         <ul>
-                            {addedItems.map((x)=><ReferenceListElement key={x[0]} text={x[1].t} record_key={x[0]} onRemove={handleremove}/>)}                           
+                            {addedItems.map((x)=><ReferenceListElement key={x[0]} text={x[1].t} record_key={x[0]} onRemove={handleremove} disabled={shouldTutorialRun}/>)}                           
                         </ul>
                     </div>              
                 </div>
@@ -172,8 +200,10 @@ export default function Feedback(){
                 <div className='feedback-right'>
                     {addedItems.length === 1 && 
                     <div className='correction'>    
-                        
                         <b>klasyfikacja: </b> 
+                        <input type='checkbox'id='use-comment'style={{marginLeft:'2vw'}} selected={isCorrected} 
+                        onChange={(e)=>{setIsCorrected(e.target.checked)}}/>
+                        <label htmlFor="use-comment">zaproponuj lepszą</label>
                         <table>
                             <tbody>
                                 <tr className="label-correction"><th>kategoria</th><th>klasyfikacja</th><th>korekcja</th></tr>
@@ -210,13 +240,16 @@ export default function Feedback(){
                     </div>}
                     <div className='opinion'>
                         <b>Komentarz:</b>
-                        <textarea value={inputText} onChange={(e)=>setInpuText(e.target.value)}></textarea>
+                        <textarea value={inputText} onChange={(e)=>setInpuText(e.target.value)} disabled={shouldTutorialRun}></textarea>
                     </div>
-                    <button className='send-button' onClick={send}>send</button>
+                    <button className='send-button' onClick={send} disabled={shouldTutorialRun}>send</button>
                     <p>{status.message&&status.message}</p>
                 </div>
                 <div className='clearfix'></div>
             </div>
+            {shouldTutorialRun && <Tutorial shouldRun={shouldTutorialRun} onFinish={onTutorialFinish} 
+                other={{itemsToAdd: setItemsToAdd, addedItems: setAddedItems }}/>}
+     
         </div>
     )
 }

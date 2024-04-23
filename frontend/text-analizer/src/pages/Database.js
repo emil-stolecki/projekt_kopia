@@ -1,0 +1,252 @@
+import React, {useEffect,useState, useContext} from 'react';
+import axios from 'axios';
+import { Server } from '../index';
+import '../css/database.css';
+import labels from '../labels.json' ;
+import RecordTile from '../components/RecordTile';
+import { type } from '@testing-library/user-event/dist/type';
+
+export default function Database(){
+
+    const [startDate,setStartDate] = useState("")
+    const [endDate,setEndDate] = useState("")
+
+    const [minNumber,setMinNumber] = useState("")
+    const [maxNumber,setMaxNumber] = useState("")
+
+    const [minLength,setMinLength] = useState("")
+    const [maxLength,setMaxLength] = useState("")
+
+    const [language,setLanguage] = useState(null)
+    const [correction,setCorrection] = useState(null)
+    const [comment,setComment] = useState(null)
+    const [words,setWords] = useState("")
+
+    const [data,setData] = useState([])
+    const server = useContext(Server)
+
+    const [checked,setChecked] = useState({
+        date:false,
+        number:false,
+        length:false,
+        language: false,
+        correction: false,
+        comment: false,
+        words: false,
+        })
+    const [page,setPage]=useState(0)
+    const [recordCount,setRecordCount]=useState(100)
+    const [filter,setFilter]=useState({})
+    const records_per_page = 10
+
+    useEffect(()=>{
+        const fetchData = async ()=>{
+            try {
+                const response = await axios.post(server+'database',{params:{page:0,filter:{}}})
+                setData(response.data)   
+                console.log(response.data)          
+            }
+            catch(error){
+
+            }
+        };
+        fetchData()
+    },[])
+
+
+    async function search(){
+   
+        const f = {}
+        if(checked.date) {
+            f.startDate = startDate
+            f.endDate = endDate
+        }
+        if(checked.number) {
+            f.minNumber = minNumber
+            f.maxNumber = maxNumber
+        }
+        if(checked.length){
+            f.minLength = minLength
+            f.maxLength = maxLength
+        }
+        if(checked.language){
+            f.language = language
+        }
+        if(correction){
+            f.correction = correction         
+        }
+        if(comment){
+            f.comment = comment
+        }
+        if(checked.words){
+            const regex = /"[^"]*"|[^",;\s]+/g;
+            const result = words.match(regex)
+            f.words = result.map(x=>x[0]==='"'?x.slice(1,x.length-1):x)
+        }
+        setFilter(f)
+        console.log(f) 
+        try {
+            const response = await axios.post(server+'database',{params:{page:0,filter:f}})
+            setData(response.data)             
+        }
+        catch(error){
+
+        }       
+    }
+
+    async function previous_page(){
+        
+        if(page!==0){
+            console.log(page-1)
+            try {
+                const response = await axios.post(server+'database',{params:{page:page-1,filter:filter}})
+                setData(response.data)             
+            }
+            catch(error){
+
+            }
+            setPage(page-1)
+        }
+    }
+    async function next_page(){
+        if(recordCount>records_per_page*page){
+            try {
+                const response = await axios.post(server+'database',{params:{page:page+1,filter:filter}})
+                setData(response.data)             
+            }
+            catch(error){
+
+            }
+            console.log(page+1)
+            setPage(page+1)
+        }
+    }
+
+    function handleCheckbox(e){
+        const ch = checked
+        ch[e.target.id] = e.target.checked
+        setChecked(ch)
+    }
+    function display_records(){
+        if(data.data){    
+        
+
+            return(
+                <div>
+                    {data.data.map((x)=><RecordTile key={x._id.$oid} date={x.date.$date} number={x.references.length}
+                    length={x.references[0].text.length} language={x.references[0].results.language[0][0]} 
+                    hasCorrection={x.opinion!=""?'true':'false'} hasComment={x.opinion!=""?'true':'false'}/>)}              
+                </div>
+            )}
+    }
+    return(
+        <div>
+            <div className='search-bar'>
+                
+                <div className='filter-option'>
+                    <input type='checkbox' id='date' onChange={handleCheckbox}></input><b>Date: </b>
+                    <div className='filter-inputs'>
+                        <span>from:</span>
+                        <input type='date' id="from-date" value={startDate} onChange={(e)=>{setStartDate(e.target.value)}}></input>
+                        <br/>
+                        <span>to:</span>
+                        <input type='date' id="to-date" value={endDate} onChange={(e)=>{setEndDate(e.target.value)}}></input>
+                        
+                    </div>
+                </div>
+
+                <div className='filter-option'>
+                    <input type='checkbox' id='number' onChange={handleCheckbox}></input><b>Num/record: </b>
+                    <div className='filter-inputs'>
+                        <span>from:</span>
+                        <input type='number' id="min-number" style={{width: '6vw'}} min={1}
+                        value={minNumber} onChange={(e)=>{setMinNumber(e.target.value)}}></input>
+                        <br/>
+                        <span>to:</span>
+                        <input type='number' id="max-number" style={{width: '6vw'}} min={1}
+                        value={maxNumber} onChange={(e)=>{setMaxNumber(e.target.value)}}></input>
+                        
+                    </div>
+                </div>
+
+                <div className='filter-option'>
+                    <input type='checkbox' id='length' onChange={handleCheckbox}></input><b>Length: </b>
+                    <div className='filter-inputs'>
+                        <span>from:</span>
+                        <input type='number' id="min-length" style={{width: '6vw'}} min={1}
+                        value={minLength} onChange={(e)=>{setMinLength(e.target.value)}}></input>
+                        <br/>
+                        <span>to:</span>
+                        <input type='number' id="max-length" style={{width: '6vw'}} min={1}
+                        value={maxLength} onChange={(e)=>{setMaxLength(e.target.value)}}></input>
+                        
+                    </div>
+                </div>
+
+                <div className='filter-option'>
+                    <input type='checkbox' id='language' onChange={handleCheckbox}></input><b>Language: </b>
+                    <div className='filter-inputs'>
+                        <br/>
+                        <select id="select-language" onChange={(e)=>setLanguage(e.target.value)}>
+                            {labels.language.map((x)=>
+                                <option key={x} value={x}>
+                                    {x}
+                                </option>
+                    )}
+                        </select>                       
+                    </div>
+                </div>
+
+                <div className='filter-option'>
+                    <input type='checkbox' id='correction' onChange={handleCheckbox}></input><b>Correction: </b>
+                    <div className='filter-inputs'>                        
+                        <span>has correnction</span> 
+                        <input type='radio' id="correction-provided" name="correction" 
+                        onChange={(e)=>setCorrection(1)}></input>   
+                        <br/>
+                        <span>no correnction</span> 
+                        <input type='radio' id="correction-not-provided" name="correction"
+                        onChange={(e)=>setCorrection(0)}></input>                                                                  
+                    </div>
+                </div>
+
+                <div className='filter-option'>
+                    <input type='checkbox' id='comment' onChange={handleCheckbox}></input><b>Comment: </b>
+                    <div className='filter-inputs'>
+                        <span>has comment</span> 
+                        <input type='radio' id="comment-provided" name="comment" onChange={(e)=>setComment(1)}></input>   
+                        <br/>
+                        <span>no comment</span> 
+                        <input type='radio' id="comment-not-provided" name="comment" onChange={(e)=>setComment(0)} ></input>  
+                                
+                        
+                    </div>
+                </div>
+
+                <div className='filter-option'>
+                    <input type='checkbox' id='words'onChange={handleCheckbox} ></input><b>Key Words: </b>
+                    <div className='filter-inputs'>
+                        <br/>
+                        <input type='text' style={{ maxWidth:'12vw'}} onChange={(e)=>setWords(e.target.value)}/>
+                        
+                    </div>
+                </div>
+                <div className='clearfix'></div>
+                    <div style={{marginLeft:'35vw', height:'8vh'}}>
+                        <button className='page-button' onClick={previous_page}>Previous page</button>     
+                        <button className='page-button' onClick={next_page}>Next page</button>     
+                        <button className='search-button' onClick={search}>Search</button>           
+                    </div>
+
+                <div className='clearfix'></div>
+                <div className='show-count'>
+                    matching records: {data&&data.count}
+                </div>
+             </div>
+             <div className='content'>
+                {data&&display_records()}
+                <div className='clearfix'></div>
+             </div>
+        </div>
+    )
+}

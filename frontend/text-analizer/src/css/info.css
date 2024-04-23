@@ -1,0 +1,33 @@
+.space{
+    height: 10vh;
+}
+
+.intro{
+    color: azure;   
+    font-size: large;
+
+}
+
+
+.paragraph{
+    color: azure;
+    margin-top: 10vh;
+    line-height: 1.6;
+    padding: 2px 10px;
+}
+
+span{
+    font-weight: 900;
+}
+
+.tutorial-button{
+   padding: 8px;
+   background-color: azure;
+   color: #35393a;
+}
+
+.left{
+    text-align: left;
+    margin-top: 5vh;
+    margin-left: 5vw;
+}

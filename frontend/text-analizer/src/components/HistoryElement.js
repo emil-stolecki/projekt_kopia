@@ -9,13 +9,18 @@ export default function HistoryElement(props){
     const keyParam = encodeURIComponent(props.record_key)
     
 
+    function handleClick(){
+        if (!props.disabled){
+            navigate(`/details?key=${keyParam}`)
+        }
+    }
     return(
         <li className="history-element-tile" >
             <div className="history-element-tile-checkbox">
                 <input type='checkbox' onChange={(e)=>props.handleChange(props.record_key,e.target.checked)} checked={props.selected}/>  
             </div>
             
-            <div className="history-element-content" onClick={()=>navigate(`/details?key=${keyParam}`)}>
+            <div className="history-element-content" onClick={handleClick} >
             
             <div className="history-element-tile-text" >
                 {element.t}
