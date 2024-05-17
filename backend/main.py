@@ -11,8 +11,6 @@ from inference.sentiment_classification import SentimentClassification
 from inference.emotion_classification import EmotionClassification
 
 from database import Database
-import os
-from dotenv import load_dotenv
 import torch
 import json
 from bson import json_util
@@ -36,12 +34,7 @@ sen_cl = SentimentClassification(folder, device)
 emo_cl = EmotionClassification(folder, device)
 
 
-#załadowanie zmiennych środowiskowych
-load_dotenv()
-name = os.environ.get("NAME")
-password = os.environ.get("PASSWORD")
-#db = Database(name, password)
-db = Database('user','pass')
+db = Database()
 
 class Request(BaseModel):
     text: str
@@ -90,24 +83,61 @@ async def save_feedback(feedback: Feedback):
     return {"success": success, "message": message}
 
 
-@app.post("/database")
+@app.post("/database-filter")
 async def get_data(params: QueryParams):
     success = True
     data = ""
     count=0
     try:
-        data,count = db.read_feedback(params.params['page'],params.params['filter'])
+        data,count = db.read_feedback(params.params['page'],params.params['filter'],params.params['limit'])
 
     except Exception as e:
         success = False
         print(e)
-    #print(data)
     return {"success": success, "data": json.loads(json_util.dumps(data)), "count":count}
 
-@app.on_event("shutdown")
-def shutdown_event():
+@app.post("/database-query")
+async def get_data_with_query(params: QueryParams):
+    success = True
+    data = ""
+    count = 0
+    if params.params['query'] == "":
+        params.params['query'] = "{}"
+
     try:
-        db.client.close()
-        print("Mongo disconected")
+        data, count = db.read_feedback_with_query(params.params['page'],
+                                                  json.loads(params.params['query']),
+                                                  params.params['limit'])
+
     except Exception as e:
-        print('Error closing MongoDB connection:', e)
+        success = False
+        print(e)
+
+    return {"success": success, "data": json.loads(json_util.dumps(data)), "count": count}
+
+@app.post("/extract-data")
+async def extract_data(params:QueryParams):
+
+    #zip data
+    success = True
+    data = ""
+    count = 0
+    query=""
+    if "query" in params.params:
+        query = json.loads(params.params['query'])
+
+    elif "filter" in params.params:
+        query = params.params['filter']
+
+    try:
+        data, count = db.save_data(params.params['page'],
+                                                  query,
+                                                  params.params['limit'])
+
+    except Exception as e:
+        success = False
+        print(e)
+
+    return {"success": success, "data": json.loads(json_util.dumps(data)), "count": count}
+
+

@@ -21,6 +21,7 @@ export default function Database(){
     const [correction,setCorrection] = useState(null)
     const [comment,setComment] = useState(null)
     const [words,setWords] = useState("")
+    const [query,setQuery] = useState("")
 
     const [data,setData] = useState([])
     const server = useContext(Server)
@@ -33,18 +34,20 @@ export default function Database(){
         correction: false,
         comment: false,
         words: false,
+        query:false,
         })
     const [page,setPage]=useState(0)
-    const [recordCount,setRecordCount]=useState(100)
+    const [recordCount,setRecordCount]=useState(0)
     const [filter,setFilter]=useState({})
     const records_per_page = 10
 
     useEffect(()=>{
         const fetchData = async ()=>{
             try {
-                const response = await axios.post(server+'database',{params:{page:0,filter:{}}})
+                const response = await axios.post(server+'database-filter',{params:{page:0,filter:{},limit:records_per_page}})
                 setData(response.data)   
-                console.log(response.data)          
+                setRecordCount(response.data.count) 
+                
             }
             catch(error){
 
@@ -55,69 +58,107 @@ export default function Database(){
 
 
     async function search(){
+        setPage(0)
    
-        const f = {}
-        if(checked.date) {
-            f.startDate = startDate
-            f.endDate = endDate
+        if(checked.query){
+            try {
+                const response = await axios.post(server+'database-query',{params:{page:0,query:query,limit:records_per_page}})
+                setData(response.data) 
+                setRecordCount(response.data.count)            
+            }
+            catch(error){
+                console.log(error)
+            }
         }
-        if(checked.number) {
-            f.minNumber = minNumber
-            f.maxNumber = maxNumber
+        else{
+            const f = {}
+            if(checked.date) {
+                f.startDate = startDate
+                f.endDate = endDate
+            }
+            if(checked.number) {
+                f.minNumber = minNumber
+                f.maxNumber = maxNumber
+            }
+            if(checked.length){
+                f.minLength = minLength
+                f.maxLength = maxLength
+            }
+            if(checked.language){
+                f.language = language
+            }
+            if(checked.correction){
+                f.correction = correction         
+            }
+            if(checked.comment){
+                f.comment = comment
+            }
+            if(checked.words){
+                if (words!=""){
+                    const regex = /"[^"]*"|[^",;\s]+/g;
+                    const result = words.match(regex)
+                    f.words = result.map(x=>x[0]==='"'?x.slice(1,x.length-1):x)
+                }
+            }
+            setFilter(f)
+       
+            try {
+                const response = await axios.post(server+'database-filter',{params:{page:0,filter:f,limit:records_per_page}})
+                setData(response.data) 
+                setRecordCount(response.data.count)            
+            }
+            catch(error){
+                console.log(error)
+            }       
         }
-        if(checked.length){
-            f.minLength = minLength
-            f.maxLength = maxLength
-        }
-        if(checked.language){
-            f.language = language
-        }
-        if(correction){
-            f.correction = correction         
-        }
-        if(comment){
-            f.comment = comment
-        }
-        if(checked.words){
-            const regex = /"[^"]*"|[^",;\s]+/g;
-            const result = words.match(regex)
-            f.words = result.map(x=>x[0]==='"'?x.slice(1,x.length-1):x)
-        }
-        setFilter(f)
-        console.log(f) 
-        try {
-            const response = await axios.post(server+'database',{params:{page:0,filter:f}})
-            setData(response.data)             
-        }
-        catch(error){
-
-        }       
+        
     }
 
     async function previous_page(){
         
         if(page!==0){
-            console.log(page-1)
+            console.log(page)
+            
+            
             try {
-                const response = await axios.post(server+'database',{params:{page:page-1,filter:filter}})
-                setData(response.data)             
+               
+                if (checked.query){
+                    const response = await axios.post(server+"database-query",{params:{page:page-1,query:query,limit:records_per_page}})
+                    setData(response.data)   
+                }
+                else{
+                    const response = await axios.post(server+"database-filter",{params:{page:page-1,filter:filter,limit:records_per_page}})
+                    setData(response.data)   
+                }
+                
+                          
             }
             catch(error){
-
+                console.log(error)
             }
             setPage(page-1)
         }
     }
     async function next_page(){
-        if(recordCount>records_per_page*page){
+        
+        if(recordCount>records_per_page*(page+1)){
             try {
-                const response = await axios.post(server+'database',{params:{page:page+1,filter:filter}})
-                setData(response.data)             
+              
+                if (checked.query){
+                    const response = await axios.post(server+"database-query",{params:{page:page+1,query:query,limit:records_per_page}})
+                    setData(response.data)  
+                }
+                else{
+                    const response = await axios.post(server+"database-filter",{params:{page:page+1,filter:filter,limit:records_per_page}})
+                    setData(response.data)  
+                }
+                
+                           
             }
             catch(error){
-
+                console.log(error)
             }
-            console.log(page+1)
+        
             setPage(page+1)
         }
     }
@@ -127,6 +168,25 @@ export default function Database(){
         ch[e.target.id] = e.target.checked
         setChecked(ch)
     }
+    async function extract(){
+        try {
+              
+            if (checked.query){
+                
+                const response = await axios.post(server+"extract-data",{params:{page:page+1,query:query,limit:records_per_page}})
+                
+            }
+            else{
+                const response = await axios.post(server+"extract-data",{params:{page:page+1,filter:filter,limit:records_per_page}})
+                
+            }
+            
+                       
+        }
+        catch(error){
+            console.log(error)
+        }
+        }
     function display_records(){
         if(data.data){    
         
@@ -217,9 +277,7 @@ export default function Database(){
                         <input type='radio' id="comment-provided" name="comment" onChange={(e)=>setComment(1)}></input>   
                         <br/>
                         <span>no comment</span> 
-                        <input type='radio' id="comment-not-provided" name="comment" onChange={(e)=>setComment(0)} ></input>  
-                                
-                        
+                        <input type='radio' id="comment-not-provided" name="comment" onChange={(e)=>setComment(0)} ></input>                                                        
                     </div>
                 </div>
 
@@ -232,13 +290,22 @@ export default function Database(){
                     </div>
                 </div>
                 <div className='clearfix'></div>
-                    <div style={{marginLeft:'35vw', height:'8vh'}}>
-                        <button className='page-button' onClick={previous_page}>Previous page</button>     
-                        <button className='page-button' onClick={next_page}>Next page</button>     
-                        <button className='search-button' onClick={search}>Search</button>           
-                    </div>
+                <div className='custom-query'>
+                    <input type='checkbox' id='query' onChange={handleCheckbox} style={{float:'left'}}></input><b style={{float:'left'}}>Query: </b>
+                    <textarea value={query} onChange={(e)=>setQuery(e.target.value)}></textarea>
+                    
+
+                </div>
+                <div className='clearfix'></div>
+                <div style={{marginLeft:'30vw', height:'8vh'}}>
+                    <button className='page-button' onClick={previous_page}>Previous page</button>     
+                    <button className='page-button' onClick={next_page}>Next page</button>     
+                    <button className='search-button' onClick={search}>Search</button>      
+                    <button className='extract-button' onClick={extract}>Extract</button>           
+                </div>
 
                 <div className='clearfix'></div>
+                
                 <div className='show-count'>
                     matching records: {data&&data.count}
                 </div>

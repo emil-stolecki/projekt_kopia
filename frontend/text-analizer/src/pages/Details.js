@@ -14,13 +14,16 @@ export default function Details(){
         localStorage.removeItem(key);
         navigate('/history')
     };
+    function giveFeedback(){
+        navigate(`/feedback?keys=${encodeURIComponent([key])}`)
+    };
 
     return(
         <div className="App">
             <Topbar/>
             <div className='menu'>
                 <button className="menu-button" onClick={deleteRecord}>usuń zapis</button>
-                <button className="menu-button" >prześlij opinię</button>
+                <button className="menu-button" onClick={giveFeedback}>prześlij opinię</button>
                 
             </div>
             <div className='clearfix'></div>

@@ -1,0 +1,11 @@
+,text,language,is_toxic,sentiment,anger,disgust,fear,joy,neutral,sadness,surprise
+0,dfgdfhgdfhdfh,"('welsh',)","('non-toxic',)",neutral,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+1,dfgdfhgdfhdfh,"('welsh',)","('non-toxic',)",neutral,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+2,polski tekst,"('polish',)","('non-toxic',)",neutral,0.0,0.0,0.0,0.0,1.0,0.0,0.0
+3,cieszę się,"('polish',)","('non-toxic',)",positive,0.0,0.0,0.0,1.0,0.0,0.0,0.0
+4,"hello from home friend
+",0,0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+5,hello friend this is new message,0,0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+6,"hello from home friend
+",0,0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+7,english text,0,0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0

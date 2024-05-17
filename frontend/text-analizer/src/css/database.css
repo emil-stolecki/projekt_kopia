@@ -39,6 +39,11 @@
     margin-left: 3vw;
     width: 5vw;
 }
+.extract-button{
+    margin-top: 2vh;
+    margin-left: 3vw;
+    width: 6vw;
+}
 
 .record-tile{
     height: 32px;
@@ -67,4 +72,17 @@
 .show-count{
     color: azure;
     text-align: center;
+}
+
+.custom-query{
+    color: azure;
+    margin-left: 30px;
+    margin-top: 1vh;
+}
+
+.custom-query textarea{
+    height: 15px;
+    max-width: 80vw;
+    float: left;
+    margin-left: 2vw;
 }
