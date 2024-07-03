@@ -4,6 +4,7 @@ import numpy as np
 from operator import itemgetter
 from pathlib import Path
 from extraFunctions import pick_params,split_text
+import time
 class SentimentClassification:
 
     def __init__(self, folder, device):
@@ -20,10 +21,11 @@ class SentimentClassification:
                                                        return_tensors="pt")
         input_ids = []
         attention_mask = []
+
         if len(encoded_input[0]) > 510:
-            window, n, overlap, error = pick_params(len(encoded_input[0]))
+            n = pick_params(len(encoded_input[0]))
             input_ids, attention_mask = split_text(encoded_input,
-                                                   window, n, overlap,
+                                                   n,
                                                    self.sen_tokenizer.cls_token_id, self.sen_tokenizer.sep_token_id,
                                                    self.sen_tokenizer.pad_token_id)
         else:
@@ -34,12 +36,19 @@ class SentimentClassification:
                 [torch.cat([torch.Tensor([1]), encoded_input.attention_mask[0], torch.Tensor([1])]).to(torch.long).to(
                     self.device)])
 
-        #print(len(encoded_input[0]))
-
         with torch.no_grad():
             # przeprowadzenie klasyfikacji
             output = self.sen_model(input_ids, attention_mask=attention_mask)
             scores = output.logits
+
+            # jeśli tekst był podzielony na części, policzenie średniej wyników
+            if len(encoded_input[0]) > 510:
+                scores = torch.tensor(
+                    np.array(
+                        [np.mean(scores.numpy(), 0)]
+                    )
+                )
+
             scores = torch.softmax(scores, dim=1).tolist()[0]
 
             labels = [label.lower() for label in self.sen_config.id2label.values()]
@@ -49,3 +58,6 @@ class SentimentClassification:
             zipped = list(zip(labels, scores))
             sorted_results = sorted(zipped, reverse=True, key=itemgetter(1))
             return sorted_results
+
+
+

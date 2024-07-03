@@ -24,7 +24,7 @@ function App() {
         <Route path="/info" element={<Info />} />
         <Route path="/history" element={<History />} />
         <Route path="/details" element={<Details />} />
-        <Route path="/database-admin" element={<Database/>}/>
+        <Route path="/database" element={<Database/>}/>
       </Routes>
     </Router>  
   

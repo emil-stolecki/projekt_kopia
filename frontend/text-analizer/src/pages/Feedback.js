@@ -15,11 +15,11 @@ export default function Feedback(){
     const server = useContext(Server)
     //ewentualne zaznaczone wcześniej zapisy
     const listOfkeys = new URLSearchParams(location.search).get('keys');
-    //wszystkie elementy z localstorage
+    //zapisy poprzednich analiz z localstorage
     const items = 
         Object.fromEntries(
         Object.entries({...localStorage})
-        .filter(([k,v])=>/\d{1,2}-\d{1,2}-[A-Za-z]/g.test(k))//tylko elementy reprezentujące analizę tekstu
+        .filter(([k,v])=>/\d{1,2}-\d{1,2}-[A-Za-z\d]/g.test(k))//tylko elementy reprezentujące analizę tekstu
         .map(([key, value]) => [key, JSON.parse(value)])
     );
 
@@ -56,16 +56,13 @@ export default function Feedback(){
     async function send(e){ 
         e.preventDefault()
         document.body.style.cursor = 'wait'
-        if(addedItems.length>0 &&(inputText.length>0 || isCorrected)){
+        if(addedItems.length>0 && (inputText.length>0 || isCorrected)){
             const corrected = {
                 toxic: selectedToxic,
                 sentiment: selectedSentiment,
                 emotion: selectedEmotions,
-                language: selectedlanguage
-             
-
+                language: selectedlanguage            
             }
-
             const feedback = {
                 references: addedItems.map((x)=>{
                     return {text:x[1].t, results:x[1].r}}),
@@ -77,11 +74,13 @@ export default function Feedback(){
             try {
                 const response = await axios.post(server+'save-feedback',feedback);
                 setStatus(response.data); 
-                //to zmienić tak, żeby tylko dla jef\dnogo się zmieniałĸ staus
-                addedItems.forEach((item)=>{
-                    item[1].f = 1
-                    localStorage.setItem(item[0],JSON.stringify(item[1]))
-                })
+                //analizy, które zostaną przesłane z korektą, będą oznacznone, żeby użytkownik wiedział,
+                //dla jakich analiz może jeszcze poprawić wyniki
+                if (isCorrected){
+                    addedItems[0][1].f = 1
+                    localStorage.setItem(addedItems[0][0],JSON.stringify(addedItems[0][1]))
+                }
+                
 
 
             } catch (error) {
@@ -169,7 +168,7 @@ export default function Feedback(){
         const items = 
         Object.fromEntries(
         Object.entries({...localStorage})
-        .filter(([k,v])=>/\d{1,2}-\d{1,2}-[A-Za-z]/g.test(k))//tylko elementy reprezentujące analizę tekstu
+        .filter(([k,v])=>/\d{1,2}-\d{1,2}-[A-Za-z\d]/g.test(k))//tylko elementy reprezentujące analizę tekstu
         .map(([key, value]) => [key, JSON.parse(value)])
         );
 
@@ -188,9 +187,11 @@ export default function Feedback(){
             <div className='content'>
                 <div className='feedback-left'>
                     <div className='reference'>
+                        <p className='window-desc'><b>analizy do wyboru:</b></p>
                         <select className='text-list' onChange={handlePick} size={5} disabled={shouldTutorialRun} >
                             {itemsToAdd.map((x)=><option key={x[0]} value={x[0]} style={textListStyle[x[1].f]}>{x[1].t.slice(0,70)+'...'}</option>)}
                         </select>
+                        <p className='window-desc'><b>wybrane analizy:</b></p>
                         <ul>
                             {addedItems.map((x)=><ReferenceListElement key={x[0]} text={x[1].t} record_key={x[0]} onRemove={handleremove} disabled={shouldTutorialRun}/>)}                           
                         </ul>
@@ -242,7 +243,7 @@ export default function Feedback(){
                         <b>Komentarz:</b>
                         <textarea value={inputText} onChange={(e)=>setInpuText(e.target.value)} disabled={shouldTutorialRun}></textarea>
                     </div>
-                    <button className='send-button' onClick={send} disabled={shouldTutorialRun}>send</button>
+                    <button className='send-button' onClick={send} disabled={shouldTutorialRun}>Wyślij</button>
                     <p>{status.message&&status.message}</p>
                 </div>
                 <div className='clearfix'></div>

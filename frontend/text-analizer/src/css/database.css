@@ -39,11 +39,7 @@
     margin-left: 3vw;
     width: 5vw;
 }
-.extract-button{
-    margin-top: 2vh;
-    margin-left: 3vw;
-    width: 6vw;
-}
+
 
 .record-tile{
     height: 32px;
@@ -85,4 +81,14 @@
     max-width: 80vw;
     float: left;
     margin-left: 2vw;
+}
+
+.extract-panel{
+    margin-top: 5vh;
+    margin-left: 2vw;
+}
+
+.extract-button{
+    margin-left: 20vw;
+    width: 20vw;
 }

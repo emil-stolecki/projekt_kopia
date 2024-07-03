@@ -9,7 +9,7 @@ export const Server = createContext()
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-     <Server.Provider value='http://localhost:8000/'>
+     <Server.Provider value='http://127.0.0.1:8000/'>
         <App />
       </Server.Provider>
   </React.StrictMode>

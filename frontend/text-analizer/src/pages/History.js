@@ -1,4 +1,4 @@
-import ShortUniqueId from 'short-unique-id';
+
 import React, { useState} from 'react';
 import '../css/history.css'
 import { useNavigate } from 'react-router-dom';
@@ -12,14 +12,14 @@ export default function History(){
     //zapisy poprzednich analiz z localstorage
     const [items,updateItems] = useState(
         Object.entries({...localStorage})
-        .filter(([k,v])=>/\d{1,2}-\d{1,2}-[A-Za-z]/g.test(k)));
+        .filter(([k,v])=>/\d{1,2}-\d{1,2}-[A-Za-z\d]/g.test(k)));
     //czy została wywołana funkcja zaznaczająca wszystkie pozycje? albo odznaczająca?
     const [selectedAll,setselectedAll] = useState(false)
     //lista stanów zaznaczenia wszystkich elementów
     const [selected,setSelected] = useState([])
     const [shouldTutorialRun,setShoulTutorialdRun] = useState(localStorage.getItem('tutorial')!=="ok")//ok znaczy, że tutorial został ukończony lub pominięty
     //funkcja obliczająca zajęte miejsce w local storage na podstawie ilości znaków
-    const calculateUsedSpace = () => {
+    const calculateUsedSpace = () => {       
         let allStrings = '';
         for (let i=0; i<items.length; i++) {
           
@@ -50,7 +50,7 @@ export default function History(){
             setselectedAll(false)
         }
         else {
-            setSelected(Object.keys({ ...localStorage }).filter((k)=>/\d{1,2}-\d{1,2}-[A-Za-z]/g.test(k)))
+            setSelected(Object.keys({ ...localStorage }).filter((k)=>/\d{1,2}-\d{1,2}-[A-Za-z\d]/g.test(k)))
             setselectedAll(true)
         }
     }
@@ -58,7 +58,7 @@ export default function History(){
     //usuwa zaznaczone elementy
     function deleteSelected(){
         selected.forEach((key) => localStorage.removeItem(key))
-        updateItems(Object.entries({ ...localStorage }).filter(([k,v])=>/\d{1,2}-\d{1,2}-[A-Za-z]/g.test(k)))
+        updateItems(Object.entries({ ...localStorage }).filter(([k,v])=>/\d{1,2}-\d{1,2}-[A-Za-z\d]/g.test(k)))
         setUsedSpace(calculateUsedSpace)
     }
 
@@ -69,7 +69,7 @@ export default function History(){
     function onTutorialFinish(){
         setShoulTutorialdRun(false)
         updateItems(Object.entries({...localStorage})
-        .filter(([k,v])=>/\d{1,2}-\d{1,2}-[A-Za-z]/g.test(k)))
+        .filter(([k,v])=>/\d{1,2}-\d{1,2}-[A-Za-z\d]/g.test(k)))
 
     }
     return(

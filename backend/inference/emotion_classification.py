@@ -4,6 +4,7 @@ import numpy as np
 from operator import itemgetter
 from pathlib import Path
 from extraFunctions import pick_params,split_text
+import time
 class EmotionClassification:
 
     def __init__(self, folder, device):
@@ -18,12 +19,13 @@ class EmotionClassification:
     def recognize_emotions(self,text):
         encoded_input = self.emo_tokenizer.encode_plus(text, add_special_tokens=False, truncation=False,
                                                        return_tensors="pt")
+
         input_ids = []
         attention_mask = []
         if len(encoded_input[0]) > 510:
-            window, n, overlap, error = pick_params(len(encoded_input[0]))
+            n = pick_params(len(encoded_input[0]))
             input_ids, attention_mask = split_text(encoded_input,
-                                                   window, n, overlap,
+                                                    n,
                                                    self.emo_tokenizer.cls_token_id, self.emo_tokenizer.sep_token_id,
                                                    self.emo_tokenizer.pad_token_id)
         else:
@@ -34,12 +36,20 @@ class EmotionClassification:
                 [torch.cat([torch.Tensor([1]), encoded_input.attention_mask[0], torch.Tensor([1])]).to(torch.long).to(
                     self.device)])
 
-        #print(len(encoded_input[0]))
+
         with torch.no_grad():
+            start = time.perf_counter()
             output = self.emo_model(input_ids, attention_mask=attention_mask)
             scores = output.logits
-            scores = torch.softmax(scores, dim=1).numpy()[0]
 
+            #jeśli tekst był podzielony na części, policzenie średniej wyników
+            if len(encoded_input[0]) > 510:
+                scores = torch.tensor(
+                    np.array(
+                        [np.mean(scores.numpy(), 0)]
+                    )
+                )
+            scores = torch.softmax(scores, dim=1).numpy()[0]
             label_names = np.array(list(self.emo_config.id2label.values()))
 
             # wybranie emocji, dla których wynik jest większy od danego progu
@@ -54,6 +64,5 @@ class EmotionClassification:
             sorted_results = sorted(zipped, reverse=True, key=itemgetter(1))
 
             return sorted_results
-
 
 

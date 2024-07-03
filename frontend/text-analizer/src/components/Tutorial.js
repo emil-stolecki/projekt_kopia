@@ -139,7 +139,7 @@ export default function Tutorial(props){
 
     const welcome = ()=>{
         checkPage('/home')
-        setText1('Czy czy chcesz tutorial?')
+        setText1('Czy chcesz rozpocząć tutorial tutorial?')
         setText2('')
         const a =document.getElementById('a')
         a.textContent='Nie'
@@ -151,7 +151,7 @@ export default function Tutorial(props){
     }
     const step1 =()=>{
         checkPage('/home')
-        props.other.input('to jest testowy tekst...')
+        props.other.input('to jest przykładowy tekst...')
         setText1('Tekst do analizy należy wpisać w żółtym polu.')
         setText2('Następnie wcisnąć przycisk "Wyślij" poniżej.')
         const a =document.getElementById('a')
@@ -290,7 +290,7 @@ export default function Tutorial(props){
 
     const step11=()=>{
         checkPage('/feedback')   
-        setText1("Kiedy opinia dotyczy tylko jednej analizy, możliwe jest poprawienie wyników w panelu po prawej stronie. Żeby korekta została wysłana, należy zaznaczyć checkbox.")
+        setText1('Kiedy opinia dotyczy tylko jednej analizy, możliwe jest poprawienie wyników w panelu po prawej stronie. Żeby korekta została wzięta pod uwagę, należy zaznaczyć pole "Zaproponuj lepszą".')
         setText2("")
 
         const exampleRecord1= [['0-00-aa',{"t":"to jest testowy tekst...",

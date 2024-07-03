@@ -20,6 +20,7 @@ export default function Home(){
   //tutorial
   const [shouldTutorialRun,setShoulTutorialdRun] = useState(localStorage.getItem('tutorial')!=="ok")//ok znaczy, że tutorial został ukończony lub pominięty
   //const [shouldTutorialRun,setShoulTutorialdRun] = useState(true)
+
 function updateTextArea(e){
   setInput(e.target.value)
 }
@@ -28,10 +29,11 @@ function updateTextArea(e){
 //wysłanie tekstu do analizy
 async function send(e){ 
     e.preventDefault()
-    if(input.length>0 && input.length<10000){
+    if(input.length>0 ){
       document.body.style.cursor = 'wait'     
       try {
         const response = await axios.post(server+'inference',{text:input});
+
         setData(response.data);
         //wpis do local storage
         const date = new Date()
@@ -51,9 +53,9 @@ async function send(e){
     else if(input.length===0){
       setError('pole jest puste')
     }
-    else{
-      setError('przekroczono limit znaków - 10 000')
-    }
+    //else{
+      //setError('przekroczono limit znaków - 10 000')
+    //}
 }
 
 

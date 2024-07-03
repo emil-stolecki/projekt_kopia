@@ -15,16 +15,18 @@ import torch
 import json
 from bson import json_util
 
+import time
+
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=['http://localhost:3000'],
+    allow_origins=['*'],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-#device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-device ="cpu"
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 print(torch.cuda.is_available())
 folder = Path('llm-models')
 
@@ -53,6 +55,7 @@ class QueryParams(BaseModel):
 
 @app.post("/inference")
 async def inference(request: Request):
+
     lang = lang_cl.recognize_language(request.text)
     tox = tox_cl.is_toxic(request.text)
     sen = sen_cl.analize_sentiment(request.text)
@@ -62,10 +65,12 @@ async def inference(request: Request):
     if any(prediction[0] == 'english' for prediction in lang):
         emo = emo_cl.recognize_emotions(request.text)
 
+
     return {"language": lang,
             "toxic": tox,
             "sentiment": sen,
-            "emotions": emo}
+            "emotions": emo,
+            }
 
 
 @app.post("/save-feedback")
@@ -115,29 +120,27 @@ async def get_data_with_query(params: QueryParams):
 
     return {"success": success, "data": json.loads(json_util.dumps(data)), "count": count}
 
-@app.post("/extract-data")
+
+@app.post("/extract-csv")
 async def extract_data(params:QueryParams):
 
-    #zip data
     success = True
     data = ""
-    count = 0
     query=""
     if "query" in params.params:
         query = json.loads(params.params['query'])
 
     elif "filter" in params.params:
-        query = params.params['filter']
+        query = db.make_query(params.params['filter'])
 
     try:
-        data, count = db.save_data(params.params['page'],
-                                                  query,
-                                                  params.params['limit'])
+        data = db.save_to_dataframe(query)
 
     except Exception as e:
         success = False
         print(e)
 
-    return {"success": success, "data": json.loads(json_util.dumps(data)), "count": count}
+    return {"success": success, "data": data}
+
 
 

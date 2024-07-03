@@ -3,7 +3,8 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification,AutoC
 import numpy as np
 from operator import itemgetter
 from pathlib import Path
-from extraFunctions import pick_params,split_text
+from extraFunctions import pick_params, split_text
+import time
 class LanguageClassification:
 
     def __init__(self,folder,device):
@@ -27,9 +28,9 @@ class LanguageClassification:
         input_ids = []
         attention_mask = []
         if len(encoded_input[0]) > 510:
-            window, n, overlap, error = pick_params(len(encoded_input[0]))
+            n = pick_params(len(encoded_input[0]))
             input_ids, attention_mask = split_text(encoded_input,
-                                                   window, n, overlap,
+                                                   n,
                                                    self.lang_tokenizer.cls_token_id, self.lang_tokenizer.sep_token_id,
                                                    self.lang_tokenizer.pad_token_id)
         else:
@@ -41,10 +42,18 @@ class LanguageClassification:
                     self.device)])
         #przeprowadzenie klasyfikacji
         #obliczanie gradientów nie jest konieczne do interferencji, torch.no_grad może zaoszczędzić czas
+
         with torch.no_grad():
             outputs = self.lang_model (input_ids, attention_mask=attention_mask)
             scores = outputs.logits
 
+            # jeśli tekst był podzielony na części, policzenie średniej wyników
+            if len(encoded_input[0]) > 510:
+                scores = torch.tensor(
+                    np.array(
+                        [np.mean(scores.numpy(), 0)]
+                    )
+                )
             scores = torch.softmax(scores, dim=1).numpy()[0]
 
             #wybranie języków, dla których wynik jest większy od danego progu
@@ -61,7 +70,5 @@ class LanguageClassification:
             zipped=list(zip(labels,best))
             sorted_results = sorted(zipped, reverse=True,key=itemgetter(1))
             return sorted_results
-
-
 
 
